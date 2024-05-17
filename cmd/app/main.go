@@ -6,7 +6,7 @@ import (
 	"car-factory/app/service"
 	"car-factory/pkg/config"
 	"car-factory/pkg/logger"
-	"car-factory/pkg/sqlite"
+	"car-factory/pkg/postgres"
 	"log/slog"
 )
 
@@ -14,16 +14,15 @@ func main() {
 	if err := config.LoadEnv(".env"); err != nil {
 		panic(err)
 	}
-	cfg := config.GetConfig()
+	cfg := config.LoadConfig()
 	log := logger.SetupLogger(cfg.GetEnv())
 	log.Info("start", slog.String("env", cfg.Env))
-	sqlite := sqlite.NewSqlite(cfg.SqlitePath)
-	db, err := sqlite.GetDB()
+	psql := postgres.NewPsql(cfg.PostgresDSN)
+	db, err := psql.GetDb()
 	if err != nil {
 		panic(err)
 	}
 	repository := repo.NewStorage(db)
-	err = repository.CreateTable()
 	if err != nil {
 		panic(err)
 	}

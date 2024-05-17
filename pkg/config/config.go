@@ -7,10 +7,10 @@ import (
 )
 
 type Config struct {
-	Env        string
-	HttpPort   string
-	HttpHost   string
-	SqlitePath string
+	PostgresDSN string
+	Env         string
+	HttpPort    string
+	HttpHost    string
 }
 
 func (c *Config) GetHTTPPort() string {
@@ -22,7 +22,7 @@ func (c *Config) GetEnv() string {
 }
 
 func LoadEnv(filenames ...string) error {
-	const op = "pkg.Config.LoadEnv"
+	const op = "pkg.config.LoadEnv"
 	err := godotenv.Load(filenames...)
 	if err != nil {
 		return fmt.Errorf("%s: %s", op, err)
@@ -30,17 +30,21 @@ func LoadEnv(filenames ...string) error {
 	return nil
 }
 
-func GetConfig() *Config {
+func LoadConfig() *Config {
 	cfg := &Config{
-		Env:      "local",
-		HttpHost: "localhost",
+		PostgresDSN: "",
+		Env:         "local",
+		HttpHost:    "0.0.0.0",
 	}
 
-	sqlitePath := os.Getenv("SQL_PATH")
+	postgresDsn := os.Getenv("DSN")
 	env := os.Getenv("ENV")
 	httpPort := os.Getenv("HTTP_PORT")
 	httpHost := os.Getenv("HTTP_HOST")
 
+	if postgresDsn != "" {
+		cfg.PostgresDSN = postgresDsn
+	}
 	if env != "" {
 		cfg.Env = env
 	}
@@ -49,9 +53,6 @@ func GetConfig() *Config {
 	}
 	if httpHost != "" {
 		cfg.HttpHost = httpHost
-	}
-	if sqlitePath != "" {
-		cfg.SqlitePath = sqlitePath
 	}
 
 	return cfg
