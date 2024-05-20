@@ -52,6 +52,8 @@ services:
       - ${HTTP_PORT}:${HTTP_PORT}
     depends_on:
       - db
+    stdin_open: true
+    tty: true
 
 volumes:
   postgres_db:

@@ -1,13 +1,15 @@
 package main
 
 import (
-	v1 "car-factory/app/controller/http/v1"
+	tui2 "car-factory/app/controller/tui"
 	"car-factory/app/repo/repo"
 	"car-factory/app/service"
 	"car-factory/pkg/config"
 	"car-factory/pkg/logger"
 	"car-factory/pkg/postgres"
+	"fmt"
 	"log/slog"
+	"os"
 )
 
 func main() {
@@ -29,10 +31,38 @@ func main() {
 	svcSuv := service.NewCarService(repository, service.CreateSUV{})
 	svcHatch := service.NewCarService(repository, service.CreateHatchBack{})
 	svcSedan := service.NewCarService(repository, service.CreateSedan{})
-	server := v1.NewRouter(log, svcSuv, svcHatch, svcSedan)
+	tui := tui2.NewTui(log, svcSuv, svcHatch, svcSedan)
+	/*server := v1.NewRouter(log, svcSuv, svcHatch, svcSedan)
 	err = server.Run(cfg.HttpHost + ":" + cfg.HttpPort)
 	if err != nil {
 		log.Error(err.Error())
 		panic(err)
+	}*/
+
+	fmt.Println("1. Create SUV")
+	fmt.Println("2. Create Sedan")
+	fmt.Println("3. Create HatchBack")
+	fmt.Println("4. Get Car")
+	fmt.Println("5. Exit")
+
+	for {
+		var choice int
+		fmt.Scanln(&choice)
+		switch choice {
+		case 1:
+			tui.CreateSuv()
+		case 2:
+			tui.CreateSedan()
+		case 3:
+			tui.CreateHatch()
+		case 4:
+			tui.GetCar()
+		case 5:
+			os.Exit(0)
+		default:
+			fmt.Println("Invalid choice")
+		}
+
 	}
+
 }

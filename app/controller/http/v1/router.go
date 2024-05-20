@@ -33,14 +33,12 @@ func (r *Routes) CreateSuv(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		r.log.Error(err.Error())
-		fmt.Println("invalid json bind")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	car, err := r.service[0].CreateCar(input)
 	if err != nil {
-		fmt.Println("error to create car with calling to service")
 		r.log.Error(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -53,14 +51,12 @@ func (r *Routes) CreateSedan(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		r.log.Error(err.Error())
-		fmt.Println("invalid json bind")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	car, err := r.service[2].CreateCar(input)
 	if err != nil {
-		fmt.Println("error to create car with calling to service")
 		r.log.Error(err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -73,7 +69,6 @@ func (r *Routes) CreateHatchBack(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&input); err != nil {
 		r.log.Error(err.Error())
-		fmt.Println("invalid json bind")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -94,7 +89,6 @@ func (r *Routes) GetCar(c *gin.Context) {
 	car, err := r.service[0].GetCar(brand)
 	if err != nil {
 		r.log.Error(err.Error())
-		fmt.Println("error to call service.getcar")
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 	}
 	c.JSON(http.StatusOK, car)
