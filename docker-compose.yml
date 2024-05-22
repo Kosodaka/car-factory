@@ -33,7 +33,7 @@ services:
   api:
     build:
       dockerfile: Dockerfile
-    container_name: api
+    container_name: app
     env_file:
       - .env
     networks:

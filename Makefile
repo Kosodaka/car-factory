@@ -13,5 +13,6 @@ create-container:
 #FOR DOCKER START
 docker-up:
 	docker-compose up -d
+#enter in docker container to interact with tui
 docker-in:
-	docker-compose run api
+	docker-compose attach api
