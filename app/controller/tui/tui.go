@@ -28,12 +28,16 @@ func (t *Tui) CreateSuv() {
 	fmt.Println("Введите марку и цвет:")
 	input, _ := reader.ReadString('\n')
 	inputArr := strings.Split(input, " ")
-	inputArr[1] = strings.TrimRight(inputArr[1], "\r\n")
+	lastIndex := len(inputArr) - 1
+	inputArr[lastIndex] = strings.TrimRight(inputArr[lastIndex], "\r\n")
 	car := entity.Car{
 		Brand: inputArr[0],
-		Color: inputArr[1],
+		Color: inputArr[lastIndex],
 	}
-
+	/*if inputArr[0] == "" || inputArr[lastIndex] == "" {
+		t.log.Error("can't create suv")
+		return
+	}*/
 	suv, err := t.service[0].CreateCar(car)
 	if err != nil {
 		t.log.Error("can't create suv", err)
@@ -47,10 +51,15 @@ func (t *Tui) CreateHatch() {
 	fmt.Println("Введите марку и цвет:")
 	input, _ := reader.ReadString('\n')
 	inputArr := strings.Split(input, " ")
-	inputArr[1] = strings.TrimRight(inputArr[1], "\r\n")
+	lastIndex := len(inputArr) - 1
+	inputArr[lastIndex] = strings.TrimRight(inputArr[lastIndex], "\r\n")
 	car := entity.Car{
 		Brand: inputArr[0],
-		Color: inputArr[1],
+		Color: inputArr[lastIndex],
+	}
+	if inputArr[0] == "" || inputArr[lastIndex] == "" {
+		t.log.Error("can't create hatch")
+		return
 	}
 
 	suv, err := t.service[1].CreateCar(car)
@@ -66,12 +75,16 @@ func (t *Tui) CreateSedan() {
 	fmt.Println("Введите марку и цвет:")
 	input, _ := reader.ReadString('\n')
 	inputArr := strings.Split(input, " ")
-	inputArr[1] = strings.TrimRight(inputArr[1], "\r\n")
+	lastIndex := len(inputArr) - 1
+	inputArr[lastIndex] = strings.TrimRight(inputArr[lastIndex], "\r\n")
 	car := entity.Car{
 		Brand: inputArr[0],
-		Color: inputArr[1],
+		Color: inputArr[lastIndex],
 	}
-
+	if inputArr[0] == "" || inputArr[lastIndex] == "" {
+		t.log.Error("can't create sedan")
+		return
+	}
 	suv, err := t.service[2].CreateCar(car)
 	if err != nil {
 		t.log.Error("can't create sedan", err)

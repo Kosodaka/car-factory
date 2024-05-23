@@ -4,7 +4,23 @@ import (
 	"car-factory/app/dto"
 	"car-factory/app/entity"
 	"car-factory/app/repo/repo"
+	"errors"
 )
+
+var (
+	InvalidType  = errors.New("wrong type, please choose correct type")
+	InvalidBrand = errors.New("invalid brand")
+	InvalidColor = errors.New("invalid color")
+)
+
+type Validator interface {
+	ValidateColor(color string) error
+	ValidateBrand(brand string) error
+	ValidateForm(form string) error
+	ValidateDataToCreateCar(car entity.Car) error
+	ValidateDataToStoreCar(car entity.Car) error
+	ValidateDataToGetCar(brand string) error
+}
 
 type CarCreator interface {
 	CreateCar(req entity.Car) (*entity.Car, error)
@@ -14,12 +30,14 @@ type CarCreator interface {
 type CarService struct {
 	carCreator CarCreator
 	carStorage repo.CarStorage
+	validator  Validator
 }
 
-func NewCarService(carStorage repo.CarStorage, carCreator CarCreator) *CarService {
+func NewCarService(carStorage repo.CarStorage, carCreator CarCreator, v Validator) *CarService {
 	return &CarService{
 		carCreator: carCreator,
 		carStorage: carStorage,
+		validator:  v,
 	}
 }
 
@@ -39,7 +57,7 @@ func (suv CreateSUV) CreateCar(req entity.Car) (*entity.Car, error) {
 	car := &entity.Car{
 		Brand: req.Brand,
 		Color: req.Color,
-		Form:  "suv",
+		Form:  "Suv",
 	}
 	return car, nil
 }
@@ -59,7 +77,7 @@ func (s CreateSedan) CreateCar(req entity.Car) (*entity.Car, error) {
 	car := &entity.Car{
 		Brand: req.Brand,
 		Color: req.Color,
-		Form:  "sedan",
+		Form:  "Sedan",
 	}
 
 	return car, nil
@@ -81,7 +99,7 @@ func (h CreateHatchBack) CreateCar(req entity.Car) (*entity.Car, error) {
 	car := &entity.Car{
 		Brand: req.Brand,
 		Color: req.Color,
-		Form:  "hatchback",
+		Form:  "Hatchback",
 	}
 
 	return car, nil
@@ -95,9 +113,14 @@ func (h CreateHatchBack) GetCar(brand string) ([]dto.CarDto, error) {
 	return car, nil
 }
 func (cs *CarService) CreateCar(req entity.Car) (*entity.Car, error) {
-
+	if err := cs.validator.ValidateDataToCreateCar(req); err != nil {
+		return nil, err
+	}
 	car, err := cs.carCreator.CreateCar(req)
 	if err != nil {
+		return nil, err
+	}
+	if err = cs.validator.ValidateDataToStoreCar(*car); err != nil {
 		return nil, err
 	}
 	err = cs.carStorage.StoreCar(MapDto(car))
@@ -108,6 +131,10 @@ func (cs *CarService) CreateCar(req entity.Car) (*entity.Car, error) {
 }
 
 func (cs *CarService) GetCar(brand string) ([]dto.CarDto, error) {
+	err := cs.validator.ValidateDataToGetCar(brand)
+	if err != nil {
+		return nil, err
+	}
 	cars, err := cs.carStorage.GetCar(brand)
 	if err != nil {
 		return nil, err

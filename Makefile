@@ -16,3 +16,11 @@ docker-up:
 #enter in docker container to interact with tui
 docker-in:
 	docker-compose attach api
+#FOR Tests
+.PHONY:mock-gen
+mock-gen:
+	mockgen -source=app/repo/repo/repo.go -destination=pkg/mocks/api/repo/repo_mock.go
+	mockgen -source=app/service/service.go -destination=pkg/mocks/api/service/service_mock.go
+
+test:
+	go test -cover ./app/service/...

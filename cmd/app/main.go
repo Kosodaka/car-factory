@@ -7,6 +7,7 @@ import (
 	"car-factory/pkg/config"
 	"car-factory/pkg/logger"
 	"car-factory/pkg/postgres"
+	"car-factory/pkg/validator"
 	"fmt"
 	"log/slog"
 	"os"
@@ -19,6 +20,8 @@ func main() {
 	cfg := config.LoadConfig()
 	log := logger.SetupLogger(cfg.GetEnv())
 	log.Info("start", slog.String("env", cfg.Env))
+	//validator
+	v := validator.NewValidator()
 	psql := postgres.NewPsql(cfg.PostgresDSN)
 	db, err := psql.GetDb()
 	if err != nil {
@@ -28,9 +31,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	svcSuv := service.NewCarService(repository, service.CreateSUV{})
-	svcHatch := service.NewCarService(repository, service.CreateHatchBack{})
-	svcSedan := service.NewCarService(repository, service.CreateSedan{})
+	svcSuv := service.NewCarService(repository, service.CreateSUV{}, v)
+	svcHatch := service.NewCarService(repository, service.CreateHatchBack{}, v)
+	svcSedan := service.NewCarService(repository, service.CreateSedan{}, v)
 	tui := tui2.NewTui(log, svcSuv, svcHatch, svcSedan)
 	/*server := v1.NewRouter(log, svcSuv, svcHatch, svcSedan)
 	err = server.Run(cfg.HttpHost + ":" + cfg.HttpPort)
