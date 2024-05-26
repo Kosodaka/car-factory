@@ -34,10 +34,6 @@ func (t *Tui) CreateSuv() {
 		Brand: inputArr[0],
 		Color: inputArr[lastIndex],
 	}
-	/*if inputArr[0] == "" || inputArr[lastIndex] == "" {
-		t.log.Error("can't create suv")
-		return
-	}*/
 	suv, err := t.service[0].CreateCar(car)
 	if err != nil {
 		t.log.Error("can't create suv", err)

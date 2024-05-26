@@ -11,6 +11,8 @@ var (
 	InvalidType  = errors.New("wrong type, please choose correct type")
 	InvalidBrand = errors.New("invalid brand")
 	InvalidColor = errors.New("invalid color")
+	EmptyBrand   = errors.New("empty brand")
+	EmptyColor   = errors.New("empty color")
 )
 
 type Validator interface {

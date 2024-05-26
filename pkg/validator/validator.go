@@ -19,6 +19,9 @@ func NewValidator() *Validator {
 func (v Validator) ValidateBrand(brand string) error {
 	if v.re.MatchString(brand) {
 		return nil
+	}
+	if brand == "" {
+		return service.EmptyBrand
 	} else {
 		return service.InvalidBrand
 	}
@@ -26,16 +29,23 @@ func (v Validator) ValidateBrand(brand string) error {
 func (v Validator) ValidateColor(color string) error {
 	if v.re.MatchString(color) {
 		return nil
+	}
+	if color == "" {
+		return service.EmptyColor
 	} else {
 		return service.InvalidColor
 	}
 }
+
 func (v Validator) ValidateForm(form string) error {
-	if form == "Suv" || form == "Sedan" || form == "Hatchback" {
-		return nil
+	if form != "" {
+		if form == "Suv" || form == "Sedan" || form == "Hatchback" {
+			return nil
+		}
 	} else {
 		return service.InvalidType
 	}
+	return nil
 }
 
 func (v Validator) ValidateDataToCreateCar(car entity.Car) error {
@@ -69,9 +79,9 @@ func (v Validator) ValidateDataToStoreCar(car entity.Car) error {
 }
 
 func (v Validator) ValidateDataToGetCar(brand string) error {
-	if v.re.MatchString(brand) {
-		return nil
-	} else {
-		return service.InvalidBrand
+	err := v.ValidateBrand(brand)
+	if err != nil || brand == "" {
+		return err
 	}
+	return nil
 }

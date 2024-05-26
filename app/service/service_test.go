@@ -33,9 +33,10 @@ func TestService_MapDto(t *testing.T) {
 
 func TestService_CreateSuv(t *testing.T) {
 	cases := []struct {
-		name   string
-		input  entity.Car
-		expErr error
+		name        string
+		input       entity.Car
+		preparation func(inp entity.Car, d Dependencies, err error)
+		expErr      error
 	}{
 		{
 			name: "create suv no error return",
@@ -44,7 +45,74 @@ func TestService_CreateSuv(t *testing.T) {
 				Color: "Grey",
 				Form:  "Suv",
 			},
+			preparation: func(inp entity.Car, d Dependencies, err error) {
+				res := &entity.Car{
+					Brand: "Toyota",
+					Color: "Grey",
+					Form:  "Suv",
+				}
+				d.repo.EXPECT().StoreCar(service.MapDto(&inp)).Return(nil)
+				require.Equal(t, res, &inp)
+			},
 			expErr: nil,
+		},
+		{
+			name: "create suv wrong form",
+			input: entity.Car{
+				Brand: "Toyota",
+				Color: "Grey",
+				Form:  "Suv",
+			},
+			preparation: func(inp entity.Car, d Dependencies, err error) {
+				res := &entity.Car{
+					Brand: "Toyota",
+					Color: "Grey",
+					Form:  "Sedan",
+				}
+				d.repo.EXPECT().StoreCar(service.MapDto(&inp)).Return(nil)
+				require.NotEqual(t, res, &inp)
+			},
+			expErr: nil,
+		},
+		{
+			name: "create suv invalid brand",
+			input: entity.Car{
+				Brand: "toyota",
+				Color: "Grey",
+				Form:  "Suv",
+			},
+			preparation: func(inp entity.Car, d Dependencies, err error) {},
+			expErr:      service.InvalidBrand,
+		},
+		{
+			name: "create suv invalid color",
+			input: entity.Car{
+				Brand: "Toyota",
+				Color: "grey",
+				Form:  "Suv",
+			},
+			preparation: func(inp entity.Car, d Dependencies, err error) {},
+			expErr:      service.InvalidColor,
+		},
+		{
+			name: "create suv empty color",
+			input: entity.Car{
+				Brand: "Toyota",
+				Color: "",
+				Form:  "Sedan",
+			},
+			preparation: func(inp entity.Car, d Dependencies, err error) {},
+			expErr:      service.EmptyColor,
+		},
+		{
+			name: "create suv empty brand",
+			input: entity.Car{
+				Brand: "",
+				Color: "Grey",
+				Form:  "Suv",
+			},
+			preparation: func(inp entity.Car, d Dependencies, err error) {},
+			expErr:      service.EmptyBrand,
 		},
 	}
 	ctl := gomock.NewController(t)
@@ -56,9 +124,9 @@ func TestService_CreateSuv(t *testing.T) {
 	uc := service.NewCarService(d.repo, svc, v)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			d.repo.EXPECT().StoreCar(service.MapDto(&tt.input)).Return(nil)
-			res, err := uc.CreateCar(tt.input)
-			require.Equal(t, res, &tt.input)
+			tt.preparation(tt.input, d, tt.expErr)
+			_, err := uc.CreateCar(tt.input)
+
 			if err != tt.expErr {
 				t.Errorf("expected error: %v, got: %v", tt.expErr, err)
 			}
@@ -93,6 +161,14 @@ func TestCreateSUV_GetCar(t *testing.T) {
 				return nil
 			},
 			expErr: service.InvalidBrand,
+		},
+		{
+			name:  "suv empty brand",
+			input: "",
+			preparation: func(inp string, d Dependencies) []dto.CarDto {
+				return nil
+			},
+			expErr: service.EmptyBrand,
 		},
 	}
 	ctl := gomock.NewController(t)
@@ -149,9 +225,29 @@ func TestService_CreateSedan(t *testing.T) {
 				Form:  "Sedan",
 			},
 			preparation: func(inp entity.Car, d Dependencies, err error) {
-
 			},
 			expErr: service.InvalidBrand,
+		},
+		{
+			name: "create sedan empty color",
+			input: entity.Car{
+				Brand: "Toyota",
+				Color: "",
+				Form:  "Sedan",
+			},
+			preparation: func(inp entity.Car, d Dependencies, err error) {},
+			expErr:      service.EmptyColor,
+		},
+
+		{
+			name: "create sedan empty brand",
+			input: entity.Car{
+				Brand: "",
+				Color: "Grey",
+				Form:  "Sedan",
+			},
+			preparation: func(inp entity.Car, d Dependencies, err error) {},
+			expErr:      service.EmptyBrand,
 		},
 	}
 	ctl := gomock.NewController(t)
@@ -185,7 +281,6 @@ func TestCreateSedan_GetCar(t *testing.T) {
 				car := dto.CarDto{
 					Brand: inp,
 					Color: "Grey",
-					Form:  "Suv",
 				}
 				d.repo.EXPECT().GetCar(car.Brand).Return([]dto.CarDto{car}, nil)
 				return []dto.CarDto{car}
@@ -224,9 +319,10 @@ func TestCreateSedan_GetCar(t *testing.T) {
 
 func TestService_CreateHatch(t *testing.T) {
 	cases := []struct {
-		name   string
-		input  entity.Car
-		expErr error
+		name        string
+		input       entity.Car
+		preparation func(inp entity.Car, d Dependencies, err error)
+		expErr      error
 	}{
 		{
 			name: "hatchback no error return",
@@ -234,8 +330,21 @@ func TestService_CreateHatch(t *testing.T) {
 				Brand: "Toyota",
 				Color: "Grey",
 				Form:  "Hatchback",
+			}, preparation: func(inp entity.Car, d Dependencies, err error) {
+				d.repo.EXPECT().StoreCar(service.MapDto(&inp)).Return(nil)
 			},
 			expErr: nil,
+		},
+		{
+			name: "hatchback invalid input",
+			input: entity.Car{
+				Brand: "",
+				Color: "Grey",
+				Form:  "Hatchback",
+			},
+			preparation: func(inp entity.Car, d Dependencies, err error) {
+			},
+			expErr: service.EmptyBrand,
 		},
 	}
 	ctl := gomock.NewController(t)
@@ -247,9 +356,8 @@ func TestService_CreateHatch(t *testing.T) {
 	uc := service.NewCarService(d.repo, svc, v)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			d.repo.EXPECT().StoreCar(service.MapDto(&tt.input)).Return(nil)
-			res, err := uc.CreateCar(tt.input)
-			require.Equal(t, res, &tt.input)
+			tt.preparation(tt.input, d, tt.expErr)
+			_, err := uc.CreateCar(tt.input)
 			if err != tt.expErr {
 				t.Errorf("expected error: %v, got: %v", tt.expErr, err)
 			}
@@ -370,54 +478,80 @@ func TestService_CreateCar(t *testing.T) {
 			input: entity.Car{
 				Brand: "Toyota",
 				Color: "Grey",
-				Form:  "Suv",
 			},
 			preparation: func(inp entity.Car, d Dependencies, err error) {
-				d.repo.EXPECT().StoreCar(service.MapDto(&inp)).Return(err)
+				d.repo.EXPECT().StoreCar(service.MapDto(&inp)).Return(nil)
+
 			},
 			expErr: nil,
 		},
 		{
-			name: "invalid Brand",
+			name: "create car wrong form",
 			input: entity.Car{
-				Brand: "gonda",
+				Brand: "Toyota",
 				Color: "Grey",
 				Form:  "Suv",
+			},
+			preparation: func(inp entity.Car, d Dependencies, err error) {
+				res := &entity.Car{
+					Brand: "Toyota",
+					Color: "Grey",
+					Form:  "Sedan",
+				}
+				d.repo.EXPECT().StoreCar(service.MapDto(&inp)).Return(nil)
+				require.NotEqual(t, res, &inp)
+			},
+			expErr: nil,
+		},
+		{
+			name: "create car invalid brand",
+			input: entity.Car{
+				Brand: "toyota",
+				Color: "Grey",
 			},
 			preparation: func(inp entity.Car, d Dependencies, err error) {},
 			expErr:      service.InvalidBrand,
 		},
 		{
-			name: "invalid Color",
+			name: "create car invalid color",
 			input: entity.Car{
 				Brand: "Toyota",
-				Color: "wHite",
+				Color: "grey",
 			},
 			preparation: func(inp entity.Car, d Dependencies, err error) {},
 			expErr:      service.InvalidColor,
 		},
 		{
-			name: "invalid Form",
+			name: "create car empty color",
 			input: entity.Car{
 				Brand: "Toyota",
-				Color: "Grey",
-				Form:  "truck",
+				Color: "",
 			},
 			preparation: func(inp entity.Car, d Dependencies, err error) {},
-			expErr:      service.InvalidType,
+			expErr:      service.EmptyColor,
+		},
+		{
+			name: "create car empty brand",
+			input: entity.Car{
+				Brand: "",
+				Color: "Grey",
+			},
+			preparation: func(inp entity.Car, d Dependencies, err error) {},
+			expErr:      service.EmptyBrand,
 		},
 	}
 	ctl := gomock.NewController(t)
 	d := Dependencies{
 		repo: mock_repo.NewMockCarStorage(ctl),
 	}
-	suv := service.CreateSUV{}
+
 	v := validator.NewValidator()
-	uc := service.NewCarService(d.repo, suv, v)
+	svc := service.CreateSedan{}
+	ucsuv := service.NewCarService(d.repo, svc, v)
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.preparation(tt.input, d, tt.expErr)
-			_, err := uc.CreateCar(tt.input)
+			_, err := ucsuv.CreateCar(tt.input)
 			if err != tt.expErr {
 				t.Errorf("expected error: %v, got: %v", tt.expErr, err)
 			}
