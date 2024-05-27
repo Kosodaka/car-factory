@@ -1,16 +1,14 @@
 package main
 
 import (
-	tui2 "car-factory/app/controller/tui"
+	v1 "car-factory/app/controller/http/v1"
 	"car-factory/app/repo/repo"
 	"car-factory/app/service"
 	"car-factory/pkg/config"
 	"car-factory/pkg/logger"
 	"car-factory/pkg/postgres"
 	"car-factory/pkg/validator"
-	"fmt"
 	"log/slog"
-	"os"
 )
 
 func main() {
@@ -34,15 +32,15 @@ func main() {
 	svcSuv := service.NewCarService(repository, service.CreateSUV{}, v)
 	svcHatch := service.NewCarService(repository, service.CreateHatchBack{}, v)
 	svcSedan := service.NewCarService(repository, service.CreateSedan{}, v)
-	tui := tui2.NewTui(log, svcSuv, svcHatch, svcSedan)
-	/*server := v1.NewRouter(log, svcSuv, svcHatch, svcSedan)
+	///tui := tui2.NewTui(log, svcSuv, svcHatch, svcSedan)
+	server := v1.NewRouter(log, svcSuv, svcHatch, svcSedan)
 	err = server.Run(cfg.HttpHost + ":" + cfg.HttpPort)
 	if err != nil {
 		log.Error(err.Error())
 		panic(err)
-	}*/
+	}
 
-	fmt.Println("1. Create SUV")
+	/*fmt.Println("1. Create SUV")
 	fmt.Println("2. Create Sedan")
 	fmt.Println("3. Create HatchBack")
 	fmt.Println("4. Get Car")
@@ -66,6 +64,6 @@ func main() {
 			fmt.Println("Invalid choice")
 		}
 
-	}
+	}*/
 
 }

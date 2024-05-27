@@ -64,11 +64,7 @@ func (suv CreateSUV) CreateCar(req entity.Car) (*entity.Car, error) {
 	return car, nil
 }
 func (suv CreateSUV) GetCar(brand string) ([]dto.CarDto, error) {
-	car, err := suv.carStorage.GetCar(brand)
-	if err != nil {
-		return nil, err
-	}
-	return car, nil
+	return nil, nil
 }
 
 type CreateSedan struct {
@@ -86,11 +82,7 @@ func (s CreateSedan) CreateCar(req entity.Car) (*entity.Car, error) {
 }
 
 func (s CreateSedan) GetCar(brand string) ([]dto.CarDto, error) {
-	car, err := s.carStorage.GetCar(brand)
-	if err != nil {
-		return nil, err
-	}
-	return car, nil
+	return nil, nil
 }
 
 type CreateHatchBack struct {
@@ -108,11 +100,7 @@ func (h CreateHatchBack) CreateCar(req entity.Car) (*entity.Car, error) {
 }
 
 func (h CreateHatchBack) GetCar(brand string) ([]dto.CarDto, error) {
-	car, err := h.carStorage.GetCar(brand)
-	if err != nil {
-		return nil, err
-	}
-	return car, nil
+	return nil, nil
 }
 func (cs *CarService) CreateCar(req entity.Car) (*entity.Car, error) {
 	if err := cs.validator.ValidateDataToCreateCar(req); err != nil {

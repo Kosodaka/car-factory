@@ -42,6 +42,9 @@ func (v Validator) ValidateForm(form string) error {
 		if form == "Suv" || form == "Sedan" || form == "Hatchback" {
 			return nil
 		}
+	}
+	if form == "" {
+		return nil
 	} else {
 		return service.InvalidType
 	}
