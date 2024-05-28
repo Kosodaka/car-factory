@@ -10,6 +10,12 @@ migrate-down:
 create-container:
 	docker run --name=factory-db -e POSTGRES_PASSWORD='qwerty' -p 5432:5432 -d postgres
 
+#local run
+run-http:
+	go run cmd/app/http/main.go
+run-tui:
+	go run cmd/app/tui/main.go
+
 #FOR DOCKER START
 docker-up:
 	docker-compose up -d
